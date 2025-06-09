@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const contactForm = document.getElementById('contactForm');
     
     if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
+        contactForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Get form values
@@ -190,12 +190,30 @@ document.addEventListener('DOMContentLoaded', function() {
             const email = document.getElementById('email').value;
             const message = document.getElementById('message').value;
             
-            // Here you would typically send to a server
-            console.log('Form submitted:', { name, email, message });
+            // API URL - change this to your production URL when deploying
+            const API_URL = 'http://localhost:3000/api/send-email';
             
-            // Show success message
-            alert('Thank you for your message! I will get back to you soon.');
-            contactForm.reset();
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, message })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Thank you for your message! I will get back to you soon.');
+                    contactForm.reset();
+                } else {
+                    throw new Error(data.error || 'Failed to send message');
+                }
+            } catch (error) {
+                alert('Sorry, there was an error sending your message. Please try again later.');
+                console.error('Error:', error);
+            }
         });
     }
 
